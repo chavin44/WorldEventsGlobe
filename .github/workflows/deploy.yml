@@ -2,6 +2,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+# Grant the workflow write access to repo contents so it can push the built
+# site to the gh-pages branch — no repo-level settings change required.
+permissions:
+  contents: write
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
