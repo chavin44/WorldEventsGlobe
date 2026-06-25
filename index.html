@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Events Globe</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <header id="hud">
+      <h1>World Events Globe</h1>
+      <p class="hint">Drag to spin · scroll to zoom · click a red marker</p>
+      <div id="visitor-count" class="visitor-count"></div>
+      <button id="add-event-btn" class="add-event-btn">Find Events</button>
+      <div id="data-status" class="data-status"></div>
+    </header>
+
+    <!-- Time range control -->
+    <div id="range-control" class="range-control">
+      <div class="rc-head">
+        <span class="rc-title">Time range</span>
+        <span id="rc-value" class="rc-value">Last 7 days</span>
+      </div>
+      <div class="rc-presets">
+        <button class="rc-btn" data-days="1">24h</button>
+        <button class="rc-btn active" data-days="7">7 days</button>
+        <button class="rc-btn" data-days="30">30 days</button>
+      </div>
+      <input id="rc-slider" class="rc-slider" type="range" min="1" max="90" value="7" />
+    </div>
+
+    <div id="filters"></div>
+
+    <div id="tooltip" class="tooltip hidden"></div>
+
+    <!-- Generic toast (add-event result / status) -->
+    <div id="app-toast" class="app-toast hidden"></div>
+
+    <aside id="panel" class="panel hidden" aria-hidden="true">
+      <button id="panel-close" class="panel-close" aria-label="Close">&times;</button>
+      <div class="panel-image-wrap">
+        <img id="panel-image" class="panel-image" alt="" />
+        <span id="panel-severity" class="panel-severity"></span>
+      </div>
+      <div class="panel-body">
+        <span id="panel-category" class="panel-category"></span>
+        <h2 id="panel-title" class="panel-title"></h2>
+        <p id="panel-place" class="panel-place"></p>
+        <p id="panel-summary" class="panel-summary"></p>
+        <div class="panel-meta">
+          <span id="panel-date" class="panel-date"></span>
+        </div>
+        <a id="panel-link" class="panel-link" href="#" target="_blank" rel="noopener noreferrer">
+          Read more at <span id="panel-source"></span> →
+        </a>
+        <button id="find-more-btn" class="panel-btn-secondary">
+          Find more <span id="find-more-cat">events</span>
+        </button>
+      </div>
+    </aside>
+
+    <div id="loading" class="loading">Preparing globe…</div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
