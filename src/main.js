@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import './style.css';
-import { loadEvents, fetchMoreEvents, CATEGORIES } from './data/dataService.js';
+import { loadEvents, fetchNews, fetchMoreEvents, CATEGORIES } from './data/dataService.js';
 import { createGlobe } from './globe/Globe.js';
 import { createEventMarkers } from './globe/EventMarkers.js';
 import { createPicker } from './interactions/Picker.js';
@@ -106,8 +106,11 @@ async function init() {
     toastTimer = setTimeout(() => toastEl.classList.add('hidden'), 3200);
   }
 
+  let newsLoadToken = 0; // guards against a stale background news load applying
+
   /** Fetch live events for `days` and rebuild all markers. */
   async function loadRange(days) {
+    const token = ++newsLoadToken;
     statusEl.innerHTML = `<span class="live-dot"></span>Fetching live events…`;
     const { events, live } = await loadEvents({ days });
     currentEvents = events;
@@ -124,6 +127,31 @@ async function init() {
     } else {
       statusEl.textContent = `⚠ Live sources unavailable — showing sample data`;
     }
+
+    // Stream in GDELT world news (economic / business / geopolitical) in the
+    // background — it's rate-limited behind a proxy, so we don't make the user
+    // wait for it. New markers pop onto the globe when it resolves.
+    if (live) streamNews(days, token);
+  }
+
+  /** Background: fetch news and add any fresh markers without blocking. */
+  async function streamNews(days, token) {
+    statusEl.innerHTML = `<span class="live-dot"></span>${currentEvents.length} live events · loading world news…`;
+    const news = await fetchNews({ days }).catch(() => []);
+    if (token !== newsLoadToken) return; // a newer load superseded us
+    let added = 0;
+    for (const evt of news) {
+      if (shownIds.has(evt.id)) continue;
+      markers.addMarker(evt);
+      shownIds.add(evt.id);
+      currentEvents.push(evt);
+      added++;
+    }
+    if (added) applyFilter();
+    const tail = added
+      ? `${currentEvents.length} live events · USGS · NASA · GDELT news`
+      : `${currentEvents.length} live events · USGS + NASA EONET`;
+    statusEl.innerHTML = `<span class="live-dot"></span>${tail}`;
   }
 
   // ---------- picking ----------
